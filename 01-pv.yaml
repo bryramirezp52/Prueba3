@@ -1,14 +1,14 @@
-apiVersion: v1
-kind: PersistentVolume
+apiVersion: v1 # Define la versión de la API de Kubernetes que se está usando.
+kind: PersistentVolume # Indica que este manifiesto define un PersistentVolume.
 metadata:
-  name: mysql-pv
+  name: mysql-pv # Nombre único para este PersistentVolume.
   labels:
-    type: local
+    type: local # Etiqueta para identificar este PV como de tipo local.
 spec:
-  storageClassName: manual
+  storageClassName: manual # Define una clase de almacenamiento. 'manual' significa que debe ser reclamado explícitamente.
   capacity:
-    storage: 10Gi
+    storage: 10Gi # Capacidad de almacenamiento que ofrece este volumen (10 Gigabytes).
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteOnce # El volumen puede ser montado como lectura-escritura por un único nodo.
   hostPath:
-    path: "/mnt/mysql-data"
+    path: "/mnt/mysql-data" # La ruta física en el nodo donde se almacenarán los datos.
