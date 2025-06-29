@@ -1,57 +1,57 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1 # Versión de la API para Deployments.
+kind: Deployment # Indica que este manifiesto define un Deployment.
 metadata:
-  name: wordpress-mysql
+  name: wordpress-mysql # Nombre del Deployment para la base de datos MySQL.
 spec:
-  replicas: 1
+  replicas: 1 # Asegura que siempre haya una réplica del Pod de MySQL.
   selector:
-    matchLabels:
+    matchLabels: # Define cómo el Deployment encuentra los Pods que debe gestionar.
       app: wordpress
       tier: mysql
-  template:
+  template: # Plantilla para los Pods que creará este Deployment.
     metadata:
-      labels:
+      labels: # Etiquetas aplicadas a los Pods, coincidiendo con el selector del Deployment y del Service.
         app: wordpress
         tier: mysql
     spec:
       containers:
-      - image: mysql:5.7
-        name: mysql
-        env:
-        - name: MYSQL_ROOT_PASSWORD
+      - image: mysql:5.7 # Imagen Docker a usar para el contenedor de MySQL.
+        name: mysql # Nombre del contenedor.
+        env: # Variables de entorno pasadas al contenedor.
+        - name: MYSQL_ROOT_PASSWORD # Variable para la contraseña del usuario root.
           valueFrom:
-            secretKeyRef:
+            secretKeyRef: # Obtiene el valor del Secret 'mysql-pass' y la clave 'password'.
               name: mysql-pass
               key: password
         # --- AÑADIDO: Crea la base de datos y el usuario para WordPress ---
-        - name: MYSQL_DATABASE
+        - name: MYSQL_DATABASE # Nombre de la base de datos que MySQL creará al iniciarse.
           value: wordpress
-        - name: MYSQL_USER
+        - name: MYSQL_USER # Nombre del usuario de la base de datos para WordPress.
           value: wordpress
-        - name: MYSQL_PASSWORD
+        - name: MYSQL_PASSWORD # Contraseña para el usuario de WordPress, obtenida del mismo Secret.
           valueFrom:
             secretKeyRef:
               name: mysql-pass
               key: password
         # --- FIN DE LO AÑADIDO ---
         ports:
-        - containerPort: 3306
+        - containerPort: 3306 # Puerto interno del contenedor MySQL.
           name: mysql
-        volumeMounts:
-        - name: mysql-persistent-storage
-          mountPath: /var/lib/mysql
-      volumes:
-      - name: mysql-persistent-storage
-        persistentVolumeClaim:
+        volumeMounts: # Monta el PersistentVolumeClaim dentro del contenedor.
+        - name: mysql-persistent-storage # Nombre del volumen que se va a montar.
+          mountPath: /var/lib/mysql # Ruta dentro del contenedor donde se montará el volumen (donde MySQL guarda sus datos).
+      volumes: # Define los volúmenes disponibles para los contenedores en este Pod.
+      - name: mysql-persistent-storage # Nombre del volumen.
+        persistentVolumeClaim: # Asocia este volumen al PersistentVolumeClaim 'mysql-pvc'.
           claimName: mysql-pvc
 ---
-apiVersion: v1
-kind: Service
+apiVersion: v1 # Versión de la API para Services.
+kind: Service # Indica que este manifiesto define un Service.
 metadata:
-  name: wordpress-mysql
+  name: wordpress-mysql # Nombre del Service para la base de datos MySQL.
 spec:
   ports:
-    - port: 3306
-  selector:
+    - port: 3306 # Puerto del Service, a través del cual otras aplicaciones se conectarán a MySQL.
+  selector: # Selecciona los Pods a los que este Service enviará el tráfico.
     app: wordpress
-    tier: mysql
+    tier: mysql # Coincide con las etiquetas de los Pods de MySQL.
