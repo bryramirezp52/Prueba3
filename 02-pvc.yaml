@@ -1,11 +1,11 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: v1 # Versión de la API de Kubernetes.
+kind: PersistentVolumeClaim # Indica que este manifiesto define un PersistentVolumeClaim.
 metadata:
-  name: mysql-pvc
+  name: mysql-pvc # Nombre único para este PersistentVolumeClaim.
 spec:
-  storageClassName: manual
+  storageClassName: manual # Debe coincidir con la 'storageClassName' del PV que se quiere reclamar.
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteOnce # Modo de acceso solicitado (lectura-escritura por un único nodo).
   resources:
     requests:
-      storage: 10Gi
+      storage: 10Gi # Cantidad de almacenamiento solicitada (debe ser igual o menor a la capacidad del PV).
