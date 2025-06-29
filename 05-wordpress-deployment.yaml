@@ -1,47 +1,47 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1 # Versión de la API para Deployments.
+kind: Deployment # Indica que este manifiesto define un Deployment.
 metadata:
-  name: wordpress
+  name: wordpress # Nombre del Deployment para la aplicación WordPress.
 spec:
-  replicas: 1
+  replicas: 1 # Asegura que siempre haya una réplica del Pod de WordPress.
   selector:
-    matchLabels:
+    matchLabels: # Define cómo el Deployment encuentra los Pods que debe gestionar.
       app: wordpress
       tier: frontend
-  template:
+  template: # Plantilla para los Pods que creará este Deployment.
     metadata:
-      labels:
+      labels: # Etiquetas aplicadas a los Pods, coincidiendo con el selector del Deployment y del Service.
         app: wordpress
         tier: frontend
     spec:
       containers:
-      - image: wordpress:latest
-        name: wordpress
-        env:
-        - name: WORDPRESS_DB_HOST
+      - image: wordpress:latest # Imagen Docker a usar para el contenedor de WordPress.
+        name: wordpress # Nombre del contenedor.
+        env: # Variables de entorno pasadas al contenedor.
+        - name: WORDPRESS_DB_HOST # Host de la base de datos. Se usa el nombre del Service de MySQL.
           value: wordpress-mysql
         # --- AÑADIDO: Especifica el usuario de la base de datos ---
-        - name: WORDPRESS_DB_USER
+        - name: WORDPRESS_DB_USER # Usuario para la base de datos de WordPress.
           value: wordpress
         # --- FIN DE LO AÑADIDO ---
-        - name: WORDPRESS_DB_PASSWORD
+        - name: WORDPRESS_DB_PASSWORD # Contraseña para la base de datos, obtenida del Secret.
           valueFrom:
             secretKeyRef:
               name: mysql-pass
               key: password
         ports:
-        - containerPort: 80
+        - containerPort: 80 # Puerto interno del contenedor WordPress.
           name: wordpress
 ---
-apiVersion: v1
-kind: Service
+apiVersion: v1 # Versión de la API para Services.
+kind: Service # Indica que este manifiesto define un Service.
 metadata:
-  name: wordpress
+  name: wordpress # Nombre del Service para WordPress.
 spec:
-  type: NodePort
+  type: NodePort # Tipo de Service. 'NodePort' expone el Service en un puerto específico en cada nodo del clúster.
   ports:
-    - port: 80
-      protocol: TCP
-  selector:
+    - port: 80 # Puerto del Service.
+      protocol: TCP # Protocolo de comunicación.
+  selector: # Selecciona los Pods a los que este Service enviará el tráfico.
     app: wordpress
-    tier: frontend
+    tier: frontend # Coincide con las etiquetas de los Pods de WordPress.
